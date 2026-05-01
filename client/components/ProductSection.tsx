@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Heart, Plus, Star } from 'lucide-react';
 import { useAuth } from '@/lib/authContext';
 import { fetchWithAuth } from '@/lib/api';
@@ -33,6 +34,17 @@ export function ProductCard({ product }: { product: Product }) {
   }, [isAuthenticated, token, product.id]);
 
   const handleAction = async (action: 'cart' | 'wishlist' | 'view') => {
+    if (action === 'view') {
+      if (isAuthenticated && token) {
+        fetchWithAuth('/recently-viewed/add', {
+          method: 'POST',
+          body: JSON.stringify({ productId: product.id }),
+        }, token).catch(console.error);
+      }
+      router.push(`/product/${product.id}`);
+      return;
+    }
+
     if (!isAuthenticated) {
       router.push('/login');
       return;
@@ -62,6 +74,10 @@ export function ProductCard({ product }: { product: Product }) {
         method: 'POST',
         body: JSON.stringify({ productId: product.id }),
       }, token);
+      
+      if (action === 'cart') {
+        window.dispatchEvent(new Event('cart-updated'));
+      }
     } catch (e) {
       if (action === 'wishlist') setIsWishlisted(isWishlisted); // Revert on fail
       console.error(e);
@@ -74,10 +90,12 @@ export function ProductCard({ product }: { product: Product }) {
       className="group flex flex-col bg-white rounded-3xl p-3 border border-gray-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
     >
       <div className="relative aspect-square rounded-2xl overflow-hidden mb-4 bg-gray-50 flex items-center justify-center p-4">
-        <img 
+        <Image 
           src={product.image} 
           alt={product.title}
-          className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
         />
         <button 
           onClick={(e) => { e.stopPropagation(); handleAction('wishlist'); }}

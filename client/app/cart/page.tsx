@@ -48,7 +48,7 @@ export default function CartPage() {
     }
   };
 
-  if (loading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><Navbar /><div className="mt-20">Loading...</div></div>;
+  if (loading) return <div className="min-h-screen bg-gray-50 flex flex-col"><Navbar /><div className="flex-1 flex items-center justify-center font-bold text-gray-400">Loading...</div></div>;
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -72,7 +72,7 @@ export default function CartPage() {
           </div>
         ) : (
           <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 space-y-4">
-            {cart.items.map((item: any) => {
+            {[...cart.items].sort((a: any, b: any) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()).map((item: any) => {
               const product = getProductById(item.productId);
               if (!product) return null;
               
@@ -80,7 +80,7 @@ export default function CartPage() {
                 <div key={item.id} className="flex flex-col sm:flex-row sm:items-center justify-between py-4 border-b last:border-0 border-gray-100 gap-4">
                   <div className="flex items-center gap-6">
                     <div className="w-24 h-24 bg-gray-50 rounded-2xl p-2 flex-shrink-0">
-                      <img src={product.image} alt={product.title} className="w-full h-full object-contain mix-blend-multiply" />
+                      <img src={product.image} alt={product.title} loading="lazy" className="w-full h-full object-contain mix-blend-multiply" />
                     </div>
                     <div>
                       <h3 className="font-bold text-[#0f172a] text-xl mb-1">{product.title}</h3>
@@ -92,12 +92,12 @@ export default function CartPage() {
                     <div className="flex items-center gap-3 bg-gray-50 p-1.5 rounded-2xl">
                       <button 
                         onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                        className="w-8 h-8 rounded-xl bg-white text-gray-900 font-black shadow-sm flex items-center justify-center hover:bg-gray-100 transition-colors"
+                        className="w-8 h-8 rounded-xl bg-white text-gray-900 font-bold shadow-sm flex items-center justify-center hover:bg-gray-100 transition-colors"
                       >-</button>
-                      <span className="font-bold w-4 text-center">{item.quantity}</span>
+                      <span className="font-black text-black text-2xl w-10 text-center" style={{ WebkitTextStroke: '1px black' }}>{item.quantity}</span>
                       <button 
                         onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                        className="w-8 h-8 rounded-xl bg-white text-gray-900 font-black shadow-sm flex items-center justify-center hover:bg-gray-100 transition-colors"
+                        className="w-8 h-8 rounded-xl bg-white text-gray-900 font-bold shadow-sm flex items-center justify-center hover:bg-gray-100 transition-colors"
                       >+</button>
                     </div>
                     <button 

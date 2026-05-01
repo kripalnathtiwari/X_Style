@@ -1,8 +1,17 @@
+import dynamic from 'next/dynamic';
 import { Navbar } from '@/components/Navbar';
 import { Hero } from '@/components/Hero';
-import { ProductSection, Product } from '@/components/ProductSection';
-import { RecentlyViewedSection } from '@/components/RecentlyViewedSection';
-import { ShoppingMilestone } from '@/components/ShoppingMilestone';
+import type { Product } from '@/components/ProductSection';
+
+const ProductSection = dynamic(() => import('@/components/ProductSection').then(mod => mod.ProductSection), { 
+  loading: () => <div className="w-full h-64 animate-pulse bg-gray-50 rounded-xl my-10" /> 
+});
+const RecentlyViewedSection = dynamic(() => import('@/components/RecentlyViewedSection').then(mod => mod.RecentlyViewedSection), { 
+  loading: () => <div className="w-full h-64 animate-pulse bg-gray-50 rounded-xl my-10" /> 
+});
+const ShoppingMilestone = dynamic(() => import('@/components/ShoppingMilestone').then(mod => mod.ShoppingMilestone), { 
+  loading: () => <div className="w-full h-64 animate-pulse bg-gray-50 rounded-xl my-10" /> 
+});
 
 const TRENDING_PRODUCTS: Product[] = [
   {
@@ -33,6 +42,10 @@ const TRENDING_PRODUCTS: Product[] = [
 
 
 
+const ContactSection = dynamic(() => import('@/components/ContactSection').then(mod => mod.ContactSection), { 
+  loading: () => <div className="w-full h-64 animate-pulse bg-gray-50 rounded-xl my-10" /> 
+});
+
 export default function Home() {
   return (
     <div className="min-h-screen bg-white">
@@ -46,6 +59,7 @@ export default function Home() {
         />
         <RecentlyViewedSection />
         <ShoppingMilestone />
+        <ContactSection />
       </main>
     </div>
   );

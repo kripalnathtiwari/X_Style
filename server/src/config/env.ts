@@ -9,6 +9,7 @@ const envSchema = z.object({
   DATABASE_URL: z.string(),
   JWT_SECRET: z.string().default('supersecretjwtkey'),
   GOOGLE_CLIENT_ID: z.string().optional(),
+  CLIENT_URL: z.string().default('http://localhost:3000'),
 });
 
 export const env = envSchema.parse(process.env);

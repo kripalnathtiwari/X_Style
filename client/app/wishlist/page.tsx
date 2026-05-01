@@ -36,7 +36,7 @@ export default function WishlistPage() {
     }
   };
 
-  if (loading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><Navbar /><div className="mt-20">Loading...</div></div>;
+  if (loading) return <div className="min-h-screen bg-gray-50 flex flex-col"><Navbar /><div className="flex-1 flex items-center justify-center font-bold text-gray-400">Loading...</div></div>;
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -80,7 +80,7 @@ export default function WishlistPage() {
               return (
                 <div key={item.id} className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center group hover:shadow-lg transition-all">
                   <div className="w-full aspect-square bg-gray-50 rounded-2xl mb-4 flex items-center justify-center p-4">
-                    <img src={product.image} alt={product.title} className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500" />
+                    <img src={product.image} alt={product.title} loading="lazy" className="w-full h-full object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500" />
                   </div>
                   <h3 className="font-bold text-lg mb-1 text-center">{product.title}</h3>
                   <p className="font-black text-[#0f172a] text-xl mb-6">₹{product.price}</p>

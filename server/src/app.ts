@@ -14,9 +14,12 @@ const app = express();
 
 // Middlewares
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin: env.CLIENT_URL,
+  credentials: true,
+}));
 app.use(express.json());
-app.use(morgan('dev'));
+app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 // Routes
 app.use('/api/auth', authRoutes);

@@ -1,12 +1,31 @@
 import { Star } from 'lucide-react';
+import Image from 'next/image';
 
 export function Hero() {
   return (
     <section className="px-4 md:px-8 py-6 w-full">
       <div className="relative w-full rounded-[2.5rem] overflow-hidden bg-[#e2e8f0] flex items-stretch h-[400px] md:h-[500px]">
         {/* Left/Right Background Images */}
-        <div className="hidden md:block absolute left-0 top-0 bottom-0 w-[40%] bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1558769132-cb1fac08b4af?auto=format&fit=crop&q=80')" }}></div>
-        <div className="hidden md:block absolute right-0 top-0 bottom-0 w-[40%] bg-cover bg-center" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&q=80')" }}></div>
+        <div className="hidden md:block absolute left-0 top-0 bottom-0 w-[40%]">
+          <Image 
+            src="https://images.unsplash.com/photo-1558769132-cb1fac08b4af?auto=format&fit=crop&q=80" 
+            alt="Left Hero Background" 
+            fill 
+            priority
+            sizes="40vw"
+            className="object-cover object-center"
+          />
+        </div>
+        <div className="hidden md:block absolute right-0 top-0 bottom-0 w-[40%]">
+          <Image 
+            src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&q=80" 
+            alt="Right Hero Background" 
+            fill 
+            priority
+            sizes="40vw"
+            className="object-cover object-center"
+          />
+        </div>
         
         {/* Center Content Box */}
         <div className="relative z-10 w-full md:w-[60%] lg:w-[45%] mx-auto bg-[#0f172a] h-full flex flex-col items-center justify-center text-center p-8 md:p-12 shadow-2xl md:rounded-[2.5rem]">
