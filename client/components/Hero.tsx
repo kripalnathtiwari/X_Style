@@ -8,7 +8,7 @@ export function Hero() {
         {/* Left/Right Background Images */}
         <div className="hidden md:block absolute left-0 top-0 bottom-0 w-[40%]">
           <Image 
-            src="https://images.unsplash.com/photo-1558769132-cb1fac08b4af?auto=format&fit=crop&q=80" 
+            src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80" 
             alt="Left Hero Background" 
             fill 
             priority

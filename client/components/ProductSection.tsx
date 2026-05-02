@@ -16,7 +16,8 @@ export interface Product {
   price: number;
 }
 
-export function ProductCard({ product }: { product: Product }) {
+export function ProductCard({ product, variant = 'default' }: { product: Product, variant?: 'default' | 'compact' }) {
+  const isCompact = variant === 'compact';
   const { token, isAuthenticated } = useAuth();
   const router = useRouter();
   const [isWishlisted, setIsWishlisted] = useState(false);
@@ -87,14 +88,14 @@ export function ProductCard({ product }: { product: Product }) {
   return (
     <div 
       onClick={() => handleAction('view')}
-      className="group flex flex-col bg-white rounded-3xl p-3 border border-gray-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+      className={`group flex flex-col bg-white rounded-3xl ${isCompact ? 'p-2' : 'p-3'} border border-gray-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer`}
     >
-      <div className="relative aspect-square rounded-2xl overflow-hidden mb-4 bg-gray-50 flex items-center justify-center p-4">
+      <div className={`relative aspect-square rounded-2xl overflow-hidden ${isCompact ? 'mb-2 p-8' : 'mb-4 p-4'} bg-gray-50 flex items-center justify-center`}>
         <Image 
           src={product.image} 
           alt={product.title}
           fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          sizes={isCompact ? "(max-width: 768px) 50vw, 15vw" : "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"}
           className="object-contain mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
         />
         <button 
@@ -115,16 +116,16 @@ export function ProductCard({ product }: { product: Product }) {
           </div>
         </div>
         
-        <h3 className="font-bold text-blue-600 text-sm mb-4 line-clamp-1">{product.title}</h3>
+        <h3 className={`font-bold text-blue-600 ${isCompact ? 'text-xs mb-2' : 'text-sm mb-4'} line-clamp-1`}>{product.title}</h3>
         
         <div className="flex items-end justify-between mt-auto">
           <div>
             <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">Price</div>
-            <div className="font-black text-gray-900 text-lg leading-none">₹{product.price}</div>
+            <div className={`${isCompact ? 'text-sm' : 'text-lg'} font-black text-gray-900 leading-none`}>₹{product.price}</div>
           </div>
           <button 
             onClick={(e) => { e.stopPropagation(); handleAction('cart'); }}
-            className="w-10 h-10 bg-[#0f172a] hover:bg-blue-600 text-white rounded-xl flex items-center justify-center transition-colors shadow-md"
+            className={`${isCompact ? 'w-8 h-8' : 'w-10 h-10'} bg-[#0f172a] hover:bg-blue-600 text-white rounded-xl flex items-center justify-center transition-colors shadow-md`}
           >
             <Plus className="w-5 h-5" />
           </button>
@@ -138,9 +139,17 @@ interface ProductSectionProps {
   subtitle: string;
   title: string;
   products: Product[];
+  gridClassName?: string;
+  cardVariant?: 'default' | 'compact';
 }
 
-export function ProductSection({ subtitle, title, products }: ProductSectionProps) {
+export function ProductSection({ 
+  subtitle, 
+  title, 
+  products, 
+  gridClassName = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6",
+  cardVariant = 'default'
+}: ProductSectionProps) {
   return (
     <section className="px-4 md:px-8 py-10 w-full max-w-7xl mx-auto">
       <div className="mb-8">
@@ -151,9 +160,9 @@ export function ProductSection({ subtitle, title, products }: ProductSectionProp
         <h2 className="text-3xl md:text-4xl font-black text-[#0f172a] tracking-tighter">{title}</h2>
       </div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className={gridClassName}>
         {products.map(p => (
-          <ProductCard key={p.id} product={p} />
+          <ProductCard key={p.id} product={p} variant={cardVariant} />
         ))}
       </div>
     </section>

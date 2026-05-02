@@ -27,7 +27,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: '4',
-    image: 'https://images.unsplash.com/photo-1596755094514-f87e32f85e2c?auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1626497764746-6dc36546b388?auto=format&fit=crop&q=80',
     category: 'SHIRTS',
     title: 'Classic White Button-Down',
     rating: 4.5,
