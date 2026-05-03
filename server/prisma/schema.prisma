@@ -19,6 +19,8 @@ model User {
   cart           Cart?
   wishlist       Wishlist[]
   recentlyViewed RecentlyViewed[]
+  addresses      Address[]
+  orders         Order[]
 }
 
 model Cart {
@@ -62,7 +64,48 @@ model RecentlyViewed {
   @@unique([userId, productId])
 }
 
+model Address {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  firstName   String
+  lastName    String
+  street      String
+  city        String
+  postalCode  String
+  phone       String
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  orders      Order[]
+}
+
+model Order {
+  id            String      @id @default(uuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  addressId     String
+  address       Address     @relation(fields: [addressId], references: [id])
+  total         Float
+  status        OrderStatus @default(PENDING)
+  paymentMethod String
+  paymentStatus String      @default("PENDING")
+  items         Json        // Storing snapshot of items
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
 enum Role {
   ADMIN
   CUSTOMER
 }
+
+

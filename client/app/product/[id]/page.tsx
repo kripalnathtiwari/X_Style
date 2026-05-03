@@ -32,6 +32,7 @@ export default function ProductPage() {
 
   useEffect(() => {
     if (isAuthenticated && token && product) {
+      // Fetch wishlist status
       fetchWithAuth('/wishlist', {}, token)
         .then((res) => {
           if (res.data?.some((w: any) => w.productId === product.id)) {
@@ -39,6 +40,12 @@ export default function ProductPage() {
           }
         })
         .catch(console.error);
+
+      // Add to recently viewed
+      fetchWithAuth('/recently-viewed/add', {
+        method: 'POST',
+        body: JSON.stringify({ productId: product.id }),
+      }, token).catch(console.error);
     }
   }, [isAuthenticated, token, product]);
 

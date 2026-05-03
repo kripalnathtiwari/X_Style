@@ -8,7 +8,7 @@ export const getRecentlyViewed = async (req: AuthRequest, res: Response) => {
     const history = await prisma.recentlyViewed.findMany({
       where: { userId },
       orderBy: { viewedAt: 'desc' },
-      take: 10, // Limit to 10 recently viewed
+      take: 6, // Limit to 6 recently viewed
     });
 
     res.status(200).json({ status: 'success', data: history });

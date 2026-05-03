@@ -36,12 +36,6 @@ export function ProductCard({ product, variant = 'default' }: { product: Product
 
   const handleAction = async (action: 'cart' | 'wishlist' | 'view') => {
     if (action === 'view') {
-      if (isAuthenticated && token) {
-        fetchWithAuth('/recently-viewed/add', {
-          method: 'POST',
-          body: JSON.stringify({ productId: product.id }),
-        }, token).catch(console.error);
-      }
       router.push(`/product/${product.id}`);
       return;
     }
@@ -70,8 +64,7 @@ export function ProductCard({ product, variant = 'default' }: { product: Product
         return;
       }
 
-      const endpoint = action === 'cart' ? '/cart/add' : '/recently-viewed/add';
-      await fetchWithAuth(endpoint, {
+      await fetchWithAuth('/cart/add', {
         method: 'POST',
         body: JSON.stringify({ productId: product.id }),
       }, token);
