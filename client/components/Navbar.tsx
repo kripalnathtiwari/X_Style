@@ -32,26 +32,34 @@ export function Navbar() {
   const [cartCount, setCartCount] = useState(0);
 
   useEffect(() => {
-    if (isAuthenticated && token) {
-      const fetchCart = () => {
-        fetchWithAuth('/cart', {}, token)
-          .then((res) => {
-             if (res.data && res.data.items) {
-                const count = res.data.items.reduce((acc: number, item: any) => acc + item.quantity, 0);
-                setCartCount(count);
-             }
-          })
-          .catch(console.error);
-      };
-      
-      fetchCart();
-      
-      window.addEventListener('cart-updated', fetchCart);
-      return () => window.removeEventListener('cart-updated', fetchCart);
-    } else {
-      setCartCount(0);
-    }
-  }, [isAuthenticated, token]);
+    const fetchCart = async () => {
+      // 1. Try cache
+      const cachedCount = localStorage.getItem(`cart_count_${user?.id}`);
+      if (cachedCount) {
+        setCartCount(parseInt(cachedCount));
+      }
+
+      if (isAuthenticated && token) {
+        try {
+          const res = await fetchWithAuth('/cart', {}, token);
+          if (res.data && res.data.items) {
+            const count = res.data.items.reduce((acc: number, item: any) => acc + item.quantity, 0);
+            setCartCount(count);
+            localStorage.setItem(`cart_count_${user?.id}`, count.toString());
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      } else {
+        setCartCount(0);
+      }
+    };
+    
+    fetchCart();
+    
+    window.addEventListener('cart-updated', fetchCart);
+    return () => window.removeEventListener('cart-updated', fetchCart);
+  }, [isAuthenticated, token, user?.id]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -151,7 +159,7 @@ export function Navbar() {
 
       {/* Right Actions */}
       <div className="flex items-center gap-3">
-        <Link href="/#support" className="hidden lg:flex items-center gap-2 rounded-full px-6 py-3 text-xs font-bold tracking-widest text-white shadow-md hover:shadow-lg transition-all bg-[#0f172a] hover:bg-gray-800">
+        <Link href="/support" className="hidden lg:flex items-center gap-2 rounded-full px-6 py-3 text-xs font-bold tracking-widest text-white shadow-md hover:shadow-lg transition-all bg-[#0f172a] hover:bg-gray-800">
           <PhoneCall className="w-4 h-4" /> SUPPORT
         </Link>
         

@@ -7,22 +7,42 @@ import { Navbar } from '@/components/Navbar';
 import { ShoppingCart, ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import { getProductById } from '@/lib/data';
-
 export default function CartPage() {
-  const { token, isAuthenticated } = useAuth();
+  const { user, token, isAuthenticated } = useAuth();
   const [cart, setCart] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (isAuthenticated && token) {
-      fetchWithAuth('/cart', {}, token)
-        .then((res) => setCart(res.data))
-        .catch(console.error)
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
-    }
-  }, [isAuthenticated, token]);
+    const loadCart = async () => {
+      // 1. Try to load from cache first
+      const cachedData = localStorage.getItem(`cart_${user?.id}`);
+      if (cachedData) {
+        try {
+          setCart(JSON.parse(cachedData));
+          setLoading(false);
+        } catch (e) {
+          console.error("Failed to parse cached cart");
+        }
+      }
+
+      if (isAuthenticated && token) {
+        try {
+          const res = await fetchWithAuth('/cart', {}, token);
+          setCart(res.data);
+          // 2. Update cache
+          localStorage.setItem(`cart_${user?.id}`, JSON.stringify(res.data));
+        } catch (err) {
+          console.error(err);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
+      }
+    };
+
+    loadCart();
+  }, [isAuthenticated, token, user?.id]);
 
   const updateQuantity = async (productId: string, quantity: number) => {
     try {

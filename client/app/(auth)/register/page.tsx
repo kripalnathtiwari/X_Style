@@ -5,18 +5,25 @@ import { useAuth } from "@/lib/authContext";
 import { GoogleLogin } from "@react-oauth/google";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import { Mail, Lock, User, ArrowRight, Loader2, Sparkles, ShieldCheck, Eye, EyeOff } from "lucide-react";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
+
+  // ... (rest of logic)
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
 
     try {
       const res = await fetch("http://localhost:5000/api/auth/register", {
@@ -30,14 +37,17 @@ export default function RegisterPage() {
         login(data.data.user, data.data.token);
         router.push("/");
       } else {
-        setError(data.message || "Failed to register");
+        setError(data.message || "Registration failed. Please try again.");
       }
     } catch (err) {
-      setError("An unexpected error occurred");
+      setError("Unable to connect to server. Please try again later.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
+    setIsLoading(true);
     try {
       const res = await fetch("http://localhost:5000/api/auth/google", {
         method: "POST",
@@ -54,78 +64,157 @@ export default function RegisterPage() {
       }
     } catch (err) {
       setError("An unexpected error occurred with Google registration");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
-        <h2 className="text-3xl font-black text-center mb-8 text-[#0f172a]">Create an Account</h2>
-        
-        {error && <div className="mb-4 p-3 bg-red-100 text-red-600 rounded-lg text-sm font-bold text-center">{error}</div>}
+    <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] px-4 relative overflow-hidden py-12">
+      {/* Dynamic Background Elements */}
+      <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-100 rounded-full blur-[120px] opacity-60 animate-pulse"></div>
+      <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-100 rounded-full blur-[120px] opacity-60 animate-pulse" style={{ animationDelay: '2s' }}></div>
 
-        <form onSubmit={handleRegister} className="flex flex-col gap-4 mb-6">
-          <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Full Name</label>
-            <input 
-              type="text" 
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-              required 
-            />
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="w-full max-w-[480px] z-10"
+      >
+        <div className="bg-white rounded-[2.5rem] shadow-[0_20px_70px_-10px_rgba(0,0,0,0.1)] border border-white/40 p-10 md:p-12 relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-8 opacity-20">
+             <ShieldCheck className="w-8 h-8 text-blue-600" />
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Email</label>
-            <input 
-              type="email" 
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-              required 
-            />
+          {/* Logo & Header */}
+          <div className="text-center mb-10">
+            <Link href="/" className="inline-block mb-6">
+              <h1 className="text-3xl font-black tracking-tighter">
+                <span className="text-blue-600">X</span><span className="text-[#000000]">Style</span>
+              </h1>
+            </Link>
+            <h2 className="text-[1.75rem] font-black text-[#000000] tracking-tight leading-tight">Create Account</h2>
+            <p className="text-gray-500 text-sm font-bold mt-2">Join the elite curation platform</p>
           </div>
           
-          <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Password</label>
-            <input 
-              type="password" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-              required 
+          <AnimatePresence mode="wait">
+            {error && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mb-6 p-4 bg-red-50 border border-red-100 text-red-600 rounded-2xl text-[13px] font-bold text-center flex items-center justify-center gap-2"
+              >
+                <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-ping"></div>
+                {error}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <form onSubmit={handleRegister} className="space-y-5 mb-8">
+            <div className="space-y-2">
+              <label className="block text-[10px] font-black text-black uppercase tracking-widest ml-1">Full Name</label>
+              <div className="relative group">
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+                <input 
+                  type="text" 
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="John Doe"
+                  autoComplete="name"
+                  className="w-full pl-12 pr-4 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold text-black focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all placeholder:text-black placeholder:font-medium"
+                  required 
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-[10px] font-black text-black uppercase tracking-widest ml-1">Email Address</label>
+              <div className="relative group">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+                <input 
+                  type="email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@example.com"
+                  autoComplete="email"
+                  className="w-full pl-12 pr-4 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold text-black focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all placeholder:text-black placeholder:font-medium"
+                  required 
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="block text-[10px] font-black text-black uppercase tracking-widest ml-1">Password</label>
+              <div className="relative group">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+                <input 
+                  type={showPassword ? "text" : "password"} 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  autoComplete="new-password"
+                  className="w-full pl-12 pr-12 py-4 bg-gray-50 border-none rounded-2xl text-sm font-bold text-black focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all placeholder:text-gray-400 placeholder:font-medium"
+                  required 
+                />
+                <button 
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
+                </button>
+              </div>
+            </div>
+
+            <button 
+              type="submit"
+              disabled={isLoading}
+              className="w-full py-4.5 mt-4 bg-[#0f172a] hover:bg-gray-800 disabled:bg-gray-400 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all shadow-[0_8px_20px_-6px_rgba(15,23,42,0.4)] hover:shadow-[0_12px_25px_-6px_rgba(15,23,42,0.5)] hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2"
+            >
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <>SIGN UP NOW <ArrowRight className="w-4 h-4" /></>
+              )}
+            </button>
+          </form>
+
+          <div className="relative mb-8 text-center">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-100"></div>
+            </div>
+            <span className="relative px-4 bg-white text-[9px] font-black text-gray-300 uppercase tracking-[0.2em]">Social Register</span>
+          </div>
+
+          <div className="flex justify-center mb-10 scale-105">
+            <GoogleLogin 
+              onSuccess={handleGoogleSuccess}
+              onError={() => setError("Google Registration Failed")}
+              theme="outline"
+              shape="pill"
+              size="large"
+              width="100%"
             />
           </div>
 
-          <button 
-            type="submit"
-            className="w-full py-4 mt-2 bg-[#0f172a] hover:bg-gray-800 text-white rounded-xl font-black uppercase tracking-widest transition-all shadow-lg"
-          >
-            Sign Up
-          </button>
-        </form>
-
-        <div className="relative mb-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-200"></div>
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500 font-bold uppercase text-[10px]">Or continue with</span>
+          <div className="text-center">
+            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+              Already have an account? <Link href="/login" className="text-blue-600 font-black hover:text-blue-700 transition-colors ml-1">LOG IN</Link>
+            </p>
           </div>
         </div>
 
-        <div className="flex justify-center mb-6">
-          <GoogleLogin 
-            onSuccess={handleGoogleSuccess}
-            onError={() => setError("Google Sign Up Failed")}
-          />
-        </div>
-
-        <p className="text-center text-sm text-gray-500 font-medium">
-          Already have an account? <Link href="/login" className="text-blue-600 font-bold hover:underline">Log in</Link>
-        </p>
-      </div>
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+          className="text-center mt-8 text-[10px] font-black text-gray-300 uppercase tracking-[0.3em]"
+        >
+          XSTYLE ELITE CURATION &copy; 2026
+        </motion.p>
+      </motion.div>
     </div>
   );
 }
+

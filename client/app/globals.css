@@ -28,3 +28,18 @@ body {
 html {
   scroll-behavior: smooth;
 }
+
+/* Global Autofill Override */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 100px #f9fafb inset !important;
+  -webkit-text-fill-color: #000000 !important;
+  caret-color: #000000 !important;
+}
+
+/* Ensure cursor is visible on light inputs */
+input {
+  caret-color: #000000 !important;
+}

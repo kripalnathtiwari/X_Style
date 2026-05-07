@@ -9,20 +9,42 @@ import Link from 'next/link';
 import { getProductById } from '@/lib/data';
 
 export default function WishlistPage() {
-  const { token, isAuthenticated } = useAuth();
+  const { user, token, isAuthenticated } = useAuth();
   const [wishlist, setWishlist] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (isAuthenticated && token) {
-      fetchWithAuth('/wishlist', {}, token)
-        .then((res) => setWishlist(res.data))
-        .catch(console.error)
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
-    }
-  }, [isAuthenticated, token]);
+    const loadWishlist = async () => {
+      // 1. Try to load from cache first for instant UI
+      const cachedData = localStorage.getItem(`wishlist_${user?.id}`);
+      if (cachedData) {
+        try {
+          setWishlist(JSON.parse(cachedData));
+          setLoading(false); // Show cached data immediately
+        } catch (e) {
+          console.error("Failed to parse cached wishlist");
+        }
+      }
+
+      if (isAuthenticated && token) {
+        try {
+          const res = await fetchWithAuth('/wishlist', {}, token);
+          const freshData = res.data || [];
+          setWishlist(freshData);
+          // 2. Update cache for next time
+          localStorage.setItem(`wishlist_${user?.id}`, JSON.stringify(freshData));
+        } catch (err) {
+          console.error("Wishlist fetch error:", err);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
+      }
+    };
+
+    loadWishlist();
+  }, [isAuthenticated, token, user?.id]);
 
   const removeWishlist = async (productId: string) => {
     try {
@@ -30,7 +52,10 @@ export default function WishlistPage() {
         method: 'DELETE',
         body: JSON.stringify({ productId }),
       }, token);
-      setWishlist(wishlist.filter((w) => w.productId !== productId));
+      const updatedWishlist = wishlist.filter((w) => w.productId !== productId);
+      setWishlist(updatedWishlist);
+      // Update cache
+      localStorage.setItem(`wishlist_${user?.id}`, JSON.stringify(updatedWishlist));
     } catch (e) {
       console.error(e);
     }

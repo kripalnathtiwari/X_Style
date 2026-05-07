@@ -9,6 +9,8 @@ import authRoutes from './routes/authRoutes';
 import cartRoutes from './routes/cartRoutes';
 import wishlistRoutes from './routes/wishlistRoutes';
 import recentlyViewedRoutes from './routes/recentlyViewedRoutes';
+import orderRoutes from './routes/orderRoutes';
+import addressRoutes from './routes/addressRoutes';
 
 const app = express();
 
@@ -26,6 +28,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/recently-viewed', recentlyViewedRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/addresses', addressRoutes);
 
 // Global Error Handler
 app.use(errorHandler);

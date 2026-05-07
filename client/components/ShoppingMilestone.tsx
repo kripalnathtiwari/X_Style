@@ -1,6 +1,28 @@
+"use client";
+
 import { Award, ChevronRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/lib/authContext';
+import { fetchWithAuth } from '@/lib/api';
+import Link from 'next/link';
 
 export function ShoppingMilestone() {
+  const { token, isAuthenticated } = useAuth();
+  const [stats, setStats] = useState({ totalSpent: 0 });
+  const TARGET = 3000;
+
+  useEffect(() => {
+    if (isAuthenticated && token) {
+      fetchWithAuth('/orders/stats', {}, token)
+        .then((res) => {
+          if (res.data) setStats(res.data);
+        })
+        .catch(console.error);
+    }
+  }, [isAuthenticated, token]);
+
+  const progress = Math.min(Math.round((stats.totalSpent / TARGET) * 100), 100);
+
   return (
     <section className="px-4 md:px-8 py-10 w-full max-w-7xl mx-auto">
       <div className="bg-[#0f172a] rounded-[2.5rem] p-8 md:p-12 text-white relative overflow-hidden shadow-2xl">
@@ -20,41 +42,45 @@ export function ShoppingMilestone() {
           
           <h2 className="text-2xl md:text-3xl font-black tracking-tighter mb-2">Shopping Milestone</h2>
           <p className="text-gray-400 text-xs md:text-sm font-medium mb-10 max-w-sm">
-            Complete your ₹3,000 shopping and get one T-shirt FREE!
+            Complete your ₹{TARGET.toLocaleString()} shopping and get one T-shirt FREE!
           </p>
 
           <div className="mb-8 max-w-3xl">
             <div className="flex justify-between items-end mb-4">
               <div className="text-[10px] font-black text-gray-500 tracking-widest uppercase">YOUR PROGRESS</div>
-              <div className="text-4xl font-black text-blue-500 tracking-tighter leading-none">0%</div>
+              <div className="text-4xl font-black text-blue-500 tracking-tighter leading-none">{progress}%</div>
             </div>
             
             <div className="h-4 bg-white/5 rounded-full overflow-hidden mb-3 border border-white/5">
-              <div className="h-full bg-blue-500 w-0 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]"></div>
+              <div 
+                className="h-full bg-blue-500 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)] transition-all duration-1000 ease-out" 
+                style={{ width: `${progress}%` }}
+              ></div>
             </div>
             
             <div className="flex justify-between text-[10px] font-black text-gray-500 tracking-widest uppercase">
-              <span>Collected: ₹0</span>
-              <span>Target: ₹3000</span>
+              <span>Collected: ₹{stats.totalSpent.toLocaleString()}</span>
+              <span>Target: ₹{TARGET.toLocaleString()}</span>
             </div>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-between bg-white/5 p-4 rounded-2xl border border-white/10 max-w-3xl backdrop-blur-sm">
             <div className="flex items-center gap-4 w-full sm:w-auto mb-4 sm:mb-0">
               <div className="w-14 h-14 bg-blue-500/20 rounded-xl flex items-center justify-center p-2 border border-blue-500/30">
-                {/* Free t-shirt icon or image placeholder */}
                 <div className="w-full h-full bg-blue-500/40 rounded flex items-center justify-center">
                   <Award className="w-6 h-6 text-blue-400" />
                 </div>
               </div>
               <div>
                 <div className="font-bold text-white text-sm">Free Premium T-Shirt</div>
-                <div className="text-xs text-gray-400 font-medium mt-1">Unlock at ₹3,000</div>
+                <div className="text-xs text-gray-400 font-medium mt-1">Unlock at ₹{TARGET.toLocaleString()}</div>
               </div>
             </div>
-            <button className="w-full sm:w-auto px-6 py-3.5 bg-white text-[#0f172a] rounded-xl text-xs font-black tracking-widest uppercase hover:bg-gray-100 transition-colors flex items-center justify-center gap-2">
-              SHOP TO UNLOCK <ChevronRight className="w-4 h-4" />
-            </button>
+            <Link href="/" className="w-full sm:w-auto">
+              <button className="w-full px-6 py-3.5 bg-white text-[#0f172a] rounded-xl text-xs font-black tracking-widest uppercase hover:bg-gray-100 transition-colors flex items-center justify-center gap-2">
+                SHOP NOW <ChevronRight className="w-4 h-4" />
+              </button>
+            </Link>
           </div>
         </div>
       </div>

@@ -52,14 +52,42 @@ export default function CheckoutPage() {
 
   const handleAddressSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, we'd validate and save to DB here
     setStep('payment');
   };
 
   const handlePlaceOrder = async () => {
-    // Mock placing order
-    setStep('success');
-    // Clear cart or redirect
+    if (!token || !cart) return;
+    setLoading(true);
+    try {
+      // 1. Create Address
+      const addressRes = await fetchWithAuth('/addresses', {
+        method: 'POST',
+        body: JSON.stringify(address),
+      }, token);
+      
+      const addressId = addressRes.data.id;
+
+      // 2. Create Order
+      const orderData = {
+        addressId,
+        total,
+        paymentMethod,
+        items: cart.items, // Snapshot of items
+      };
+
+      await fetchWithAuth('/orders', {
+        method: 'POST',
+        body: JSON.stringify(orderData),
+      }, token);
+
+      // 3. Success
+      setStep('success');
+      window.dispatchEvent(new Event('cart-updated')); // Update cart count in navbar
+    } catch (error: any) {
+      alert(error.message || 'Failed to place order');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (loading) return <div className="min-h-screen bg-gray-50 flex flex-col"><Navbar /><div className="flex-1 flex items-center justify-center font-bold text-gray-400">Loading...</div></div>;
@@ -99,7 +127,7 @@ export default function CheckoutPage() {
                           type="text" 
                           placeholder="First Name"
                           required
-                          className="w-full bg-white border-none h-14 rounded-2xl px-6 font-bold text-gray-900 placeholder:text-gray-300 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
+                          className="w-full bg-white border-none h-14 rounded-2xl px-6 font-bold text-gray-900 placeholder:text-black focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
                           value={address.firstName}
                           onChange={(e) => setAddress({...address, firstName: e.target.value})}
                         />
@@ -109,7 +137,7 @@ export default function CheckoutPage() {
                           type="text" 
                           placeholder="Last Name"
                           required
-                          className="w-full bg-white border-none h-14 rounded-2xl px-6 font-bold text-gray-900 placeholder:text-gray-300 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
+                          className="w-full bg-white border-none h-14 rounded-2xl px-6 font-bold text-gray-900 placeholder:text-black focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
                           value={address.lastName}
                           onChange={(e) => setAddress({...address, lastName: e.target.value})}
                         />
@@ -120,7 +148,7 @@ export default function CheckoutPage() {
                         type="text" 
                         placeholder="Street Address"
                         required
-                        className="w-full bg-white border-none h-14 rounded-2xl px-6 font-bold text-gray-900 placeholder:text-gray-300 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
+                        className="w-full bg-white border-none h-14 rounded-2xl px-6 font-bold text-gray-900 placeholder:text-black focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
                         value={address.street}
                         onChange={(e) => setAddress({...address, street: e.target.value})}
                       />
@@ -131,7 +159,7 @@ export default function CheckoutPage() {
                           type="text" 
                           placeholder="City"
                           required
-                          className="w-full bg-white border-none h-14 rounded-2xl px-6 font-bold text-gray-900 placeholder:text-gray-300 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
+                          className="w-full bg-white border-none h-14 rounded-2xl px-6 font-bold text-gray-900 placeholder:text-black focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
                           value={address.city}
                           onChange={(e) => setAddress({...address, city: e.target.value})}
                         />
@@ -141,7 +169,7 @@ export default function CheckoutPage() {
                           type="text" 
                           placeholder="Postal Code"
                           required
-                          className="w-full bg-white border-none h-14 rounded-2xl px-6 font-bold text-gray-900 placeholder:text-gray-300 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
+                          className="w-full bg-white border-none h-14 rounded-2xl px-6 font-bold text-gray-900 placeholder:text-black focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
                           value={address.postalCode}
                           onChange={(e) => setAddress({...address, postalCode: e.target.value})}
                         />
@@ -152,7 +180,7 @@ export default function CheckoutPage() {
                         type="tel" 
                         placeholder="Phone Number"
                         required
-                        className="w-full bg-white border-none h-14 rounded-2xl px-6 font-bold text-gray-900 placeholder:text-gray-300 focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
+                        className="w-full bg-white border-none h-14 rounded-2xl px-6 font-bold text-gray-900 placeholder:text-black focus:ring-2 focus:ring-blue-500/20 transition-all shadow-sm"
                         value={address.phone}
                         onChange={(e) => setAddress({...address, phone: e.target.value})}
                       />
@@ -205,18 +233,18 @@ export default function CheckoutPage() {
                         <input 
                           type="text" 
                           placeholder="Card Number"
-                          className="w-full bg-gray-50 border-none h-14 rounded-2xl px-6 font-bold text-gray-900 placeholder:text-gray-300 focus:ring-2 focus:ring-blue-500/20"
+                          className="w-full bg-gray-50 border-none h-14 rounded-2xl px-6 font-bold text-gray-900 placeholder:text-black focus:ring-2 focus:ring-blue-500/20"
                         />
                         <div className="grid grid-cols-2 gap-4">
                           <input 
                             type="text" 
                             placeholder="MM/YY"
-                            className="w-full bg-gray-50 border-none h-14 rounded-2xl px-6 font-bold text-gray-900 placeholder:text-gray-300 focus:ring-2 focus:ring-blue-500/20"
+                            className="w-full bg-gray-50 border-none h-14 rounded-2xl px-6 font-bold text-gray-900 placeholder:text-black focus:ring-2 focus:ring-blue-500/20"
                           />
                           <input 
                             type="text" 
                             placeholder="CVV"
-                            className="w-full bg-gray-50 border-none h-14 rounded-2xl px-6 font-bold text-gray-900 placeholder:text-gray-300 focus:ring-2 focus:ring-blue-500/20"
+                            className="w-full bg-gray-50 border-none h-14 rounded-2xl px-6 font-bold text-gray-900 placeholder:text-black focus:ring-2 focus:ring-blue-500/20"
                           />
                         </div>
                       </div>

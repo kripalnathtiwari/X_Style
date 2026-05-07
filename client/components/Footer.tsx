@@ -46,11 +46,11 @@ export function Footer() {
           <div>
             <h3 className="text-lg font-black tracking-tight mb-6 uppercase text-gray-200">Support</h3>
             <ul className="space-y-4">
-              <li><Link href="#" className="text-gray-400 hover:text-white text-sm font-medium transition-colors">Track Order</Link></li>
-              <li><Link href="#" className="text-gray-400 hover:text-white text-sm font-medium transition-colors">Returns & Exchanges</Link></li>
-              <li><Link href="#" className="text-gray-400 hover:text-white text-sm font-medium transition-colors">Shipping Information</Link></li>
-              <li><Link href="#" className="text-gray-400 hover:text-white text-sm font-medium transition-colors">Size Guide</Link></li>
-              <li><Link href="#" className="text-gray-400 hover:text-white text-sm font-medium transition-colors">FAQ</Link></li>
+              <li><Link href="/support" className="text-gray-400 hover:text-white text-sm font-medium transition-colors">Track Order</Link></li>
+              <li><Link href="/support" className="text-gray-400 hover:text-white text-sm font-medium transition-colors">Returns & Exchanges</Link></li>
+              <li><Link href="/support" className="text-gray-400 hover:text-white text-sm font-medium transition-colors">Shipping Information</Link></li>
+              <li><Link href="/support" className="text-gray-400 hover:text-white text-sm font-medium transition-colors">Size Guide</Link></li>
+              <li><Link href="/support" className="text-gray-400 hover:text-white text-sm font-medium transition-colors">FAQ</Link></li>
             </ul>
           </div>
 

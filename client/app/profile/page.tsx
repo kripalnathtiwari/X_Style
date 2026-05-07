@@ -2,6 +2,9 @@
 
 import { useAuth } from "@/lib/authContext";
 import { Navbar } from "@/components/Navbar";
+import { useState, useEffect } from "react";
+import { fetchWithAuth } from "@/lib/api";
+import Link from 'next/link';
 import { 
   ShoppingBag, 
   Heart, 
@@ -16,7 +19,23 @@ import {
 } from "lucide-react";
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, token, isAuthenticated } = useAuth();
+  const [stats, setStats] = useState({
+    totalOrders: 0,
+    totalSpent: 0,
+    wishlistCount: 0
+  });
+  const TARGET = 3000;
+
+  useEffect(() => {
+    if (isAuthenticated && token) {
+      fetchWithAuth('/orders/stats', {}, token)
+        .then(res => {
+          if (res.data) setStats(res.data);
+        })
+        .catch(console.error);
+    }
+  }, [isAuthenticated, token]);
 
   if (!user) {
     return (
@@ -28,6 +47,8 @@ export default function ProfilePage() {
       </div>
     );
   }
+
+  const progress = Math.min(Math.round((stats.totalSpent / TARGET) * 100), 100);
 
   return (
     <div className="min-h-screen bg-[#f1f5f9] font-sans pb-20 relative">
@@ -115,7 +136,7 @@ export default function ProfilePage() {
                   <ShoppingBag className="w-4 h-4 text-blue-500" />
                 </div>
                 <div>
-                  <h2 className="text-3xl font-black text-[#0f172a] mb-1">0</h2>
+                  <h2 className="text-3xl font-black text-[#0f172a] mb-1">{stats.totalOrders}</h2>
                   <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Total Orders</p>
                 </div>
               </div>
@@ -126,7 +147,7 @@ export default function ProfilePage() {
                   <Heart className="w-4 h-4 text-blue-500" />
                 </div>
                 <div>
-                  <h2 className="text-3xl font-black text-[#0f172a] mb-1">0</h2>
+                  <h2 className="text-3xl font-black text-[#0f172a] mb-1">{stats.wishlistCount}</h2>
                   <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Wishlist</p>
                 </div>
               </div>
@@ -137,7 +158,7 @@ export default function ProfilePage() {
                   <Award className="w-4 h-4 text-blue-500" />
                 </div>
                 <div>
-                  <h2 className="text-3xl font-black text-[#0f172a] mb-1">₹0</h2>
+                  <h2 className="text-3xl font-black text-[#0f172a] mb-1">₹{stats.totalSpent.toLocaleString()}</h2>
                   <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Total Spent</p>
                 </div>
               </div>
@@ -158,18 +179,21 @@ export default function ProfilePage() {
                 </div>
                 <div className="text-right">
                   <p className="text-[9px] font-bold text-blue-400 uppercase tracking-widest mb-1">Progress</p>
-                  <p className="text-2xl font-black text-blue-400">0%</p>
+                  <p className="text-2xl font-black text-blue-400">{progress}%</p>
                 </div>
               </div>
 
               {/* Progress Bar Area */}
               <div className="mb-8">
                 <div className="h-2.5 w-full bg-[#1e2338] rounded-full overflow-hidden mb-3">
-                  <div className="h-full bg-blue-500 rounded-full w-[0%]"></div>
+                  <div 
+                    className="h-full bg-blue-500 rounded-full transition-all duration-1000 ease-out" 
+                    style={{ width: `${progress}%` }}
+                  ></div>
                 </div>
                 <div className="flex justify-between items-center text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                  <p>Current: ₹0</p>
-                  <p>Target: ₹3000</p>
+                  <p>Current: ₹{stats.totalSpent.toLocaleString()}</p>
+                  <p>Target: ₹{TARGET.toLocaleString()}</p>
                 </div>
               </div>
 
@@ -181,12 +205,14 @@ export default function ProfilePage() {
                   </div>
                   <div>
                     <h4 className="font-bold text-white text-sm mb-0.5">Free XStyle T-Shirt</h4>
-                    <p className="text-[11px] text-gray-400">Automatically delivered when you hit ₹3000</p>
+                    <p className="text-[11px] text-gray-400">Automatically delivered when you hit ₹{TARGET.toLocaleString()}</p>
                   </div>
                 </div>
-                <button className="bg-white text-[#0f172a] px-5 py-2.5 rounded-xl text-xs font-bold shadow-md transition-transform hover:scale-105 active:scale-95 shrink-0">
-                  SHOP NOW
-                </button>
+                <Link href="/">
+                  <button className="bg-white text-[#0f172a] px-5 py-2.5 rounded-xl text-xs font-bold shadow-md transition-transform hover:scale-105 active:scale-95 shrink-0 uppercase tracking-widest">
+                    SHOP NOW
+                  </button>
+                </Link>
               </div>
 
             </div>

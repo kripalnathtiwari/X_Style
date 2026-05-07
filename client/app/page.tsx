@@ -23,6 +23,9 @@ const FeaturesSection = dynamic(() => import('@/components/FeaturesSection').the
 const NewsletterSection = dynamic(() => import('@/components/NewsletterSection').then(mod => mod.NewsletterSection), { 
   loading: () => <div className="w-full h-64 animate-pulse bg-gray-50 rounded-[3rem] my-10" /> 
 });
+const SupportSection = dynamic(() => import('@/components/SupportSection').then(mod => mod.SupportSection), {
+  loading: () => <div className="w-full h-64 animate-pulse bg-gray-50 rounded-xl my-10" />
+});
 const Footer = dynamic(() => import('@/components/Footer').then(mod => mod.Footer));
 
 const TRENDING_PRODUCTS: Product[] = PRODUCTS.slice(0, 8);
@@ -42,6 +45,7 @@ export default function Home() {
         />
         <RecentlyViewedSection />
         <ShoppingMilestone />
+        <SupportSection />
         <NewsletterSection />
       </main>
       <Footer />

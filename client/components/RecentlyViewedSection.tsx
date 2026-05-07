@@ -7,27 +7,40 @@ import { ProductSection, Product } from '@/components/ProductSection';
 import { PRODUCTS } from '@/lib/data';
 
 export function RecentlyViewedSection() {
-  const { token, isAuthenticated } = useAuth();
+  const { user, token, isAuthenticated } = useAuth();
   const [products, setProducts] = useState<Product[]>([]); 
 
   useEffect(() => {
-    if (isAuthenticated && token) {
-      fetchWithAuth('/recently-viewed', {}, token)
-        .then((res) => {
+    const loadRecentlyViewed = async () => {
+      // 1. Try cache
+      const cached = localStorage.getItem(`recently_viewed_${user?.id}`);
+      if (cached) {
+        try {
+          setProducts(JSON.parse(cached));
+        } catch (e) {}
+      }
+
+      if (isAuthenticated && token) {
+        try {
+          const res = await fetchWithAuth('/recently-viewed', {}, token);
           if (res.data && Array.isArray(res.data)) {
             const viewedProductIds = res.data.map((item: any) => item.productId);
-            // Map the IDs to actual product objects in the order they were viewed
             const viewedProducts = viewedProductIds
               .map(id => PRODUCTS.find(p => p.id === id))
               .filter((p): p is Product => p !== undefined)
               .slice(0, 6);
             
             setProducts(viewedProducts);
+            localStorage.setItem(`recently_viewed_${user?.id}`, JSON.stringify(viewedProducts));
           }
-        })
-        .catch(console.error);
-    }
-  }, [isAuthenticated, token]);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    };
+
+    loadRecentlyViewed();
+  }, [isAuthenticated, token, user?.id]);
 
   if (products.length === 0) return null;
 
